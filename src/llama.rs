@@ -1,8 +1,9 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::collide_aabb::{collide, Collision}};
+use crate::collider::*;
 
 pub struct LlamaPlugin;
 
-pub enum Llama_Direction {
+pub enum LlamaDirection {
     N,
     NE,
     E,
@@ -14,7 +15,7 @@ pub enum Llama_Direction {
 }
 
 pub struct Llama {
-    pub moving_direction: Llama_Direction,
+    pub moving_direction: LlamaDirection,
     pub name: String
 }
 
@@ -31,12 +32,28 @@ fn animate_llama(
 }
 
 fn move_llama(
-    mut query: Query<(&mut Llama, &mut Transform)>
+    mut query: Query<(&mut Llama, &mut Transform, &Sprite)>,
+    collider_query: Query<(Entity, &Colider, &Transform, &Sprite)>
 ) {
-    for(mut Llama, mut transform) in query.iter_mut() {
+    for(mut llama, mut llama_transform, llama_sprite) in query.iter_mut() {
         // check collision with walls
+        for (collider_entity, collider, collision_transform, collision_sprite) in collider_query.iter() {
+            println!("Right here");
+            // let collision = collide(
+            //     llama_transform.translation,
+            //     llama_sprite.size,
+            //     collision_transform.translation,
+            //     collision_sprite.size
+            // );
+
+            // if let Some(_) = collision {
+            //     *llama_transform.translation.x_mut() -= 0.5
+            // }
+            // else {
+            //     *llama_transform.translation.x_mut() += 0.5;
+            // }
+        }
         
-        *transform.translation.x_mut() += 0.5;
     }
 }
 
