@@ -32,26 +32,26 @@ fn animate_llama(
 }
 
 fn move_llama(
-    mut query: Query<(&mut Llama, &mut Transform, &Sprite)>,
-    collider_query: Query<(Entity, &Colider, &Transform, &Sprite)>
+    mut llama_query: Query<(&mut Llama, &mut Transform, &mut TextureAtlasSprite)>,
+    collider_query: Query<(&Colider, &Transform, &Sprite)>
 ) {
-    for(mut llama, mut llama_transform, llama_sprite) in query.iter_mut() {
+    for(mut llama, mut llama_transform, mut llama_texture_atlas_sprite) in llama_query.iter_mut() {
+        println!("Llama");
         // check collision with walls
-        for (collider_entity, collider, collision_transform, collision_sprite) in collider_query.iter() {
-            println!("Right here");
-            // let collision = collide(
-            //     llama_transform.translation,
-            //     llama_sprite.size,
-            //     collision_transform.translation,
-            //     collision_sprite.size
-            // );
+        for (collider, collision_transform, collision_sprite) in collider_query.iter() {
+            let collision = collide(
+                llama_transform.translation,
+                Vec2::new(30., 30.),
+                collision_transform.translation,
+                collision_sprite.size
+            );
 
-            // if let Some(_) = collision {
-            //     *llama_transform.translation.x_mut() -= 0.5
-            // }
-            // else {
-            //     *llama_transform.translation.x_mut() += 0.5;
-            // }
+            if let Some(_) = collision {
+                *llama_transform.translation.x_mut() -= 0.5
+            }
+            else {
+                *llama_transform.translation.x_mut() += 0.5;
+            }
         }
         
     }
