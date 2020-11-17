@@ -1,5 +1,6 @@
 use bevy::{prelude::*, sprite::collide_aabb::{collide, Collision}};
 use crate::collider::*;
+use crate::spawner::*;
 
 pub struct LlamaPlugin;
 
@@ -32,29 +33,60 @@ fn animate_llama(
 }
 
 fn move_llama(
-    mut llama_query: Query<(&mut Llama, &mut Transform, &mut TextureAtlasSprite)>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut llama_query: Query<(Entity, &mut Llama, &mut Transform, &Handle<TextureAtlas>)>,
     collider_query: Query<(&Colider, &Transform, &Sprite)>
 ) {
-    for(mut llama, mut llama_transform, mut llama_texture_atlas_sprite) in llama_query.iter_mut() {
-        println!("Llama");
+    for(llama_entity, mut llama, mut llama_transform, mut llama_texture_atlas_handle) in llama_query.iter_mut() {
         // check collision with walls
         for (collider, collision_transform, collision_sprite) in collider_query.iter() {
+
             let collision = collide(
                 llama_transform.translation,
                 Vec2::new(30., 30.),
                 collision_transform.translation,
                 collision_sprite.size
             );
-
+        
             if let Some(_) = collision {
-                *llama_transform.translation.x_mut() -= 0.5
+            
+                // SPAWN AND DESPAWN
+                commands
+                    .spawn(SpriteSheetComponents {
+                        texture_atlas: texture_atlases.add(spawn(&asset_server, MovingDirection::LlamaMovingLeft)),
+                        transform: Transform::from_translation(Vec3::new(
+                            llama_transform.translation.x()-1. , 
+                            0., 
+                            0.
+                        )),
+                        ..Default::default()
+                    })
+                    .with(Llama {
+                        moving_direction: LlamaDirection::W,
+                        name: "Lama 2".to_string()
+                    })
+                    .with(Timer::from_seconds(0.2, true));
+
+                commands.despawn(llama_entity);
             }
             else {
-                *llama_transform.translation.x_mut() += 0.5;
+                match llama.moving_direction {
+                    LlamaDirection::E => *llama_transform.translation.x_mut() += 0.5,
+                    LlamaDirection::W => {
+                        *llama_transform.translation.x_mut() -= 0.5;
+                    },
+                    _ => println!("to implement")
+                }
             }
         }
-        
     }
+}
+
+fn move_llama_without_detected_collision(direction: LlamaDirection) {
+
 }
 
 impl Plugin for LlamaPlugin {

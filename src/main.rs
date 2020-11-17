@@ -4,13 +4,17 @@ mod collider;
 
 use bevy::prelude::*;
 use llama::*;
+use spawner::*;
 
 fn startup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    meshes: Res<Assets<Mesh>>
 ) {
+    let llama_right_handle: Handle<TextureAtlas> = asset_server.load("models/Llama_right.png");
+    let llama_left_handle: Handle<TextureAtlas> = asset_server.load("models/Llama_left.png");
 
     // Temp Wall Stuff
     let wall_material = materials.add(Color::rgb(0.8, 0.8, 0.8).into());
@@ -25,7 +29,7 @@ fn startup(
         // Spawn Wall
         .spawn(SpriteComponents {
             material: wall_material.clone(),
-            transform: Transform::from_translation(Vec3::new(bounds.x() / 2.0, 0.0, 0.0)),
+            transform: Transform::from_translation(Vec3::new(250., 0.0, 0.0)),
             sprite: Sprite::new(Vec2::new(wall_thickness, bounds.y() + wall_thickness)),
             ..Default::default()
         })
@@ -33,7 +37,7 @@ fn startup(
 
         // Spawn Llama
         .spawn(SpriteSheetComponents {
-            texture_atlas: texture_atlases.add(spawner::spawn(&asset_server)),
+            texture_atlas: texture_atlases.add(spawner::spawn(&asset_server, MovingDirection::LlamaMovingRight)),
             ..Default::default()
         })
         .with(Llama {
