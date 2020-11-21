@@ -58,37 +58,14 @@ fn move_llama(
         
             if let Some(_) = collision {
 
-                // let spawn_llama = Llama {
-                //     moving_direction: LlamaDirection::W,
-                //     starting_pos_x: 0.,
-                //     starting_pos_y: 0.
-                // };
-
                 commands.despawn(llama_entity);
 
                 // Send Spawn Event
                 spawn_events.send(SpawnLlama {
-                    moving_direction: LlamaDirection::W
+                    moving_direction: LlamaDirection::W,
+                    starting_pos_x: llama_transform.translation.x() - 0.1, // to do find better way
+                    starting_pos_y: llama_transform.translation.y()
                 });
-
-                // // SPAWN AND DESPAWN
-                // commands
-                //     .spawn(SpriteSheetComponents {
-                //         texture_atlas: texture_atlases.add(spawn(&asset_server, MovingDirection::LlamaMovingLeft)),
-                //         transform: Transform::from_translation(Vec3::new(
-                //             llama_transform.translation.x()-1. , 
-                //             0., 
-                //             0.
-                //         )),
-                //         ..Default::default()
-                //     })
-                //     .with(Llama {
-                //         moving_direction: LlamaDirection::W,
-                //         name: "Lama 2".to_string()
-                //     })
-                //     .with(Timer::from_seconds(0.2, true));
-
-                // commands.despawn(llama_entity);
             }
             else {
                 match llama.moving_direction {

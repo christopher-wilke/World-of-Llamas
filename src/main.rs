@@ -15,10 +15,6 @@ fn startup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut spawn_llama_events: ResMut<Events<SpawnLlama>>,
 ) {
-
-    // let llama_left_handle: Handle<TextureAtlas> = asset_server.load("models/Llama_left.png");
-    // let llama_right_handle: Handle<TextureAtlas> = asset_server.load("models/Llama_right.png");
-    asset_server.load_folder("models").unwrap();
     
     // Temp Wall Stuff
     let wall_material = materials.add(Color::rgb(0.8, 0.8, 0.8).into());
@@ -41,7 +37,9 @@ fn startup(
 
         // Send Spawn Event
         spawn_llama_events.send(SpawnLlama {
-            moving_direction: LlamaDirection::E
+            moving_direction: LlamaDirection::E,
+            starting_pos_x: 0.,
+            starting_pos_y: 0.
         });    
 }
 
