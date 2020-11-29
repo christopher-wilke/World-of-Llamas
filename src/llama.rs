@@ -84,6 +84,8 @@ fn new_llama(old_llama: Llama) -> Llama {
         },
         LlamaDirection::E => {
             new_llama.moving_direction = LlamaDirection::W;
+            new_llama.starting_pos_x = old_llama.starting_pos_x - 1.;
+            new_llama.starting_pos_y = old_llama.starting_pos_y - 1.;
         },
         LlamaDirection::ES => {
             new_llama.moving_direction = LlamaDirection::WN;
@@ -96,7 +98,7 @@ fn new_llama(old_llama: Llama) -> Llama {
         },
         LlamaDirection::W => {
             new_llama.moving_direction = get_new_llama_direction(LlamaDirection::W);
-            new_llama.starting_pos_x = old_llama.starting_pos_x - 0.1;
+            new_llama.starting_pos_x = old_llama.starting_pos_x - 1.;
             new_llama.starting_pos_y = old_llama.starting_pos_y;
         }
         LlamaDirection::WN => {
@@ -112,14 +114,14 @@ fn move_llama(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut spawn_events: ResMut<Events<SpawnLlama>>,
-    mut llama_query: Query<(Entity, &mut Llama, &mut Transform, &Handle<TextureAtlas>)>,
+    mut spawn_events: ResMut<Events<SpawnObject>>,
+    mut spawn_llama_events: ResMut<Events<SpawnObject>>,
+    mut llama_query: Query<(Entity, &mut Llama, &mut Transform)>,
     collider_query: Query<(&Colider, &Transform, &Sprite)>
 ) {
 
-    for(llama_entity, llama, mut llama_transform, mut llama_texture_atlas_handle) in llama_query.iter_mut() {
-        // check collision with walls
-        for (collider, collision_transform, collision_sprite) in collider_query.iter() {
+    for(llama_entity, llama, mut llama_transform) in llama_query.iter_mut() {
+        for (_collider, collision_transform, collision_sprite) in collider_query.iter() {
 
             let collision = collide(
                 llama_transform.translation,
@@ -133,11 +135,17 @@ fn move_llama(
                 commands.despawn(llama_entity); // should be improved by just replacing the texture
                 let new_llama = new_llama(llama.clone());
 
-                // Send Spawn Event
-                spawn_events.send(SpawnLlama {
+                // Trigger Llama Spawn Event
+                let mut _llamas: Vec<SpawnLlama> = Vec::new();
+
+                _llamas.push(SpawnLlama {
                     moving_direction: new_llama.moving_direction,
-                    starting_pos_x: llama_transform.translation.x() - 0.1, // to do find better way
-                    starting_pos_y: llama_transform.translation.y()
+                    starting_pos_x: new_llama.starting_pos_x,
+                    starting_pos_y: new_llama.starting_pos_y
+                });
+
+                spawn_llama_events.send(SpawnObject {
+                    llamas: _llamas
                 });
             }
             else {

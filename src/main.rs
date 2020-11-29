@@ -10,7 +10,7 @@ fn startup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut spawn_llama_events: ResMut<Events<SpawnLlama>>,
+    mut spawn_llama_events: ResMut<Events<SpawnObject>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>
 ) {
     
@@ -37,51 +37,30 @@ fn startup(
         })
         .with(collider::Colider::Solid);
 
-            // .spawn(SpriteSheetComponents {
-            //     texture_atlas: texture_atlases.add(texture_atlas),
-            //     transform: Transform::from_translation(Vec3::new(
-            //         0., 
-            //         0., 
-            //         0.
-            //     )),
-            //     ..Default::default()
-            // })
-            // .with(Llama {
-            //     moving_direction: LlamaDirection::E,
-            //     starting_pos_x: 0.,
-            //     starting_pos_y: 0. 
-            // })
-            // .with(Timer::from_seconds(0.2, true))
-
-            // .spawn(SpriteSheetComponents {
-            //     texture_atlas: texture_atlases.add(texture_atlas2),
-            //     transform: Transform::from_translation(Vec3::new(
-            //         0., 
-            //         250., 
-            //         0.
-            //     )),
-            //     ..Default::default()
-            // })
-            // .with(Llama {
-            //     moving_direction: LlamaDirection::E,
-            //     starting_pos_x: 0.,
-            //     starting_pos_y: 250. 
-            // })
-            // .with(Timer::from_seconds(0.2, true));
-
         // Send Spawn Event
-        spawn_llama_events.send(SpawnLlama {
+        let mut _llamas: Vec<SpawnLlama> = Vec::new();
+
+        _llamas.push(SpawnLlama {
             moving_direction: LlamaDirection::E,
-            starting_pos_x: 0.,
+            starting_pos_x: -15.,
+            starting_pos_y: -150.
+        });
+
+        _llamas.push(SpawnLlama {
+            moving_direction: LlamaDirection::E,
+            starting_pos_x: 40.,
             starting_pos_y: 0.
         });
 
-        // // Send Spawn Event
-        // spawn_llama_events.send(SpawnLlama {
-        //     moving_direction: LlamaDirection::E,
-        //     starting_pos_x: 0.,
-        //     starting_pos_y: 250.
-        // });
+        _llamas.push(SpawnLlama {
+            moving_direction: LlamaDirection::E,
+            starting_pos_x: -200.,
+            starting_pos_y: 200.
+        });
+
+        spawn_llama_events.send(SpawnObject {
+            llamas: _llamas
+        });
 }
 
 fn main() {
@@ -92,7 +71,7 @@ fn main() {
             title: "World of Llamas".to_string(),
             ..Default::default()
         })
-        .add_event::<SpawnLlama>()
+        .add_event::<SpawnObject>()
         .add_plugins(DefaultPlugins)
         .add_startup_system(startup.system())  
         .add_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
