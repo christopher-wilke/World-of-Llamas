@@ -25,7 +25,23 @@ impl SpawnLlama {
         asset_server: &Res<AssetServer>, 
         texture_atlases: &mut ResMut<Assets<TextureAtlas>>
     ) {
-        let texture_handle = asset_server.load("models/Llama_right.png");
+        let texture_handle;
+
+        match self.moving_direction {
+            LlamaDirection::N | LlamaDirection::NE => {
+                texture_handle = asset_server.load("models/Llama_top.png");
+            },
+            LlamaDirection::E | LlamaDirection::ES => {
+                texture_handle = asset_server.load("models/Llama_right.png");
+            },
+            LlamaDirection::S | LlamaDirection::SW => {
+                texture_handle = asset_server.load("models/Llama_bottom.png");
+            },
+            LlamaDirection::W | LlamaDirection::WN => {
+                texture_handle = asset_server.load("models/Llama_left.png");
+            }
+        }
+
         let texture_atlas = TextureAtlas::from_grid(texture_handle.clone(), Vec2::new(128., 128.), 4, 1);
 
         commands
@@ -39,7 +55,7 @@ impl SpawnLlama {
                 ..Default::default()
             })
             .with(Llama {
-                moving_direction: LlamaDirection::E,
+                moving_direction: self.moving_direction.clone(),
                 starting_pos_x: self.starting_pos_x,
                 starting_pos_y: self.starting_pos_y 
             })
@@ -47,7 +63,6 @@ impl SpawnLlama {
     }
 }
 
-// Listens for incoming Events
 fn llama_spawn_listener(
     commands: Commands,
     asset_server: Res<AssetServer>,

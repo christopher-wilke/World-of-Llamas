@@ -71,7 +71,10 @@ fn get_new_llama_direction(dir: LlamaDirection) -> LlamaDirection {
     random_direction
 }
 
-fn new_llama(old_llama: Llama) -> Llama {
+fn new_llama(
+    old_llama: Llama,
+    old_llama_pos: Transform
+) -> Llama {
 
     let mut new_llama = Llama { ..Default::default()  };
 
@@ -84,8 +87,8 @@ fn new_llama(old_llama: Llama) -> Llama {
         },
         LlamaDirection::E => {
             new_llama.moving_direction = LlamaDirection::W;
-            new_llama.starting_pos_x = old_llama.starting_pos_x - 1.;
-            new_llama.starting_pos_y = old_llama.starting_pos_y - 1.;
+            new_llama.starting_pos_x = old_llama_pos.translation.x() - 1.;
+            new_llama.starting_pos_y = old_llama_pos.translation.y();
         },
         LlamaDirection::ES => {
             new_llama.moving_direction = LlamaDirection::WN;
@@ -98,7 +101,7 @@ fn new_llama(old_llama: Llama) -> Llama {
         },
         LlamaDirection::W => {
             new_llama.moving_direction = get_new_llama_direction(LlamaDirection::W);
-            new_llama.starting_pos_x = old_llama.starting_pos_x - 1.;
+            new_llama.starting_pos_x = old_llama_pos.translation.x() - 10.;
             new_llama.starting_pos_y = old_llama.starting_pos_y;
         }
         LlamaDirection::WN => {
@@ -111,10 +114,6 @@ fn new_llama(old_llama: Llama) -> Llama {
 
 fn move_llama(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    mut spawn_events: ResMut<Events<SpawnObject>>,
     mut spawn_llama_events: ResMut<Events<SpawnObject>>,
     mut llama_query: Query<(Entity, &mut Llama, &mut Transform)>,
     collider_query: Query<(&Colider, &Transform, &Sprite)>
@@ -133,9 +132,9 @@ fn move_llama(
             if let Some(_) = collision {
 
                 commands.despawn(llama_entity); // should be improved by just replacing the texture
-                let new_llama = new_llama(llama.clone());
+                let new_llama = new_llama(llama.clone(), *llama_transform);
 
-                // Trigger Llama Spawn Event
+                // // Trigger Llama Spawn Event
                 let mut _llamas: Vec<SpawnLlama> = Vec::new();
 
                 _llamas.push(SpawnLlama {
